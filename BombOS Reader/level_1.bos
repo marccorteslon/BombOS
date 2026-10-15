@@ -1,6 +1,6 @@
 BOS;0.5;;
 TITLE;Nivel 1;;
-TEXTURES;;
+TEXTURES;5;
 a;verde_oscuro.png;;
 b;verde_claro.png;;
 c;ladrillo.png;;
