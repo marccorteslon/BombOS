@@ -5,6 +5,9 @@ using namespace std;
 
 string header;
 string version;
+string title;
+string lvl;
+string textures;
 
 int main()
 {
@@ -26,11 +29,38 @@ int main()
     getline(level, version, ';');
 
     if (version != "0.5") {
-        cout << "Error 2: Version incorrecta";
-        return 2;
+        cout << "Error 3: Version incorrecta";
+        return 3;
     }
 
     cout << "Version: " << version;
+
+    getline(level, title, ';');
+    getline(level, title, ';');
+
+
+    if (title != "TITLE") {
+        cout << "Error 4: No título";
+        return 4;
+    }
+
+    getline(level, lvl, ';');
+
+    if (lvl != "Nivel 1") {
+        cout << "Error 5: Nivel erróneo";
+        return 5;
+    }
+
+    cout << "Level: " << lvl;
+
+    getline(level, textures, ';');
+    getline(level, textures, ';');
+
+
+    if (textures != "TEXTURES") {
+        cout << "Error 6: No textures";
+        return 6;
+    }
     
     string tmp;
 
