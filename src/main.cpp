@@ -49,9 +49,9 @@ int start_raylib(void)
 
     // Define the camera to look into our 3d world
     Camera camera = { 0 };
-    camera.position = { 8.0f, 7.0f, 8.0f };     // Camera position
+    camera.position = { 0.0f, 12.0f, 0.0f };     // Camera position
     camera.target = { 0.0f, 0.0f, 0.0f };          // Camera looking at point
-    camera.up = { 0.0f, 1.0f, 0.0f };              // Camera up vector (rotation towards target)
+    camera.up = { 0.0f, 0.0f, -1.0f };              // Camera up vector (rotation towards target)
     camera.fovy = 45.0f;                                    // Camera field-of-view Y
     camera.projection = CAMERA_PERSPECTIVE;                 // Camera projection type
 
@@ -66,10 +66,24 @@ int start_raylib(void)
         textures2D.insert({ it.first, texture_tmp });
     }
 
+    
+
     bool pause = false;     // Pause camera orbital rotation (and zoom)
 
     SetTargetFPS(60);                   // Set our game to run at 60 frames-per-second
     //--------------------------------------------------------------------------------------
+
+    float offset_x = -level_w / 2;
+
+    if (level_w % 2 == 0) {
+        offset_x += 0.5;
+    }
+
+    float offset_z = -level_h / 2;
+
+    if (level_h % 2 == 0) {
+        offset_z += 0.5;
+    }
 
     // Main game loop
     while (!WindowShouldClose())        // Detect window close button or ESC key
@@ -78,7 +92,7 @@ int start_raylib(void)
         //----------------------------------------------------------------------------------
         if (IsKeyPressed(KEY_P)) pause = !pause;
 
-        if (!pause) UpdateCamera(&camera, CAMERA_ORBITAL);
+        //if (!pause) UpdateCamera(&camera, CAMERA_ORBITAL);
         //----------------------------------------------------------------------------------
 
         // Draw
@@ -87,11 +101,41 @@ int start_raylib(void)
 
         ClearBackground(RAYWHITE);
 
-
+        
         BeginMode3D(camera);
 
         // Draw cube with an applied texture
-        DrawCubeTexture(textures2D['a'], { 0.0f, 0.0f, 0.0f }, 1.0f, 1.0f, 1.0f, WHITE);
+        // DrawCubeTexture(textures2D['a'], { 0.0f, 0.0f, 0.0f }, 1.0f, 1.0f, 1.0f, WHITE);
+
+        // For para ir dibujando los cubos
+
+        for (int i = 0; i < level_h; i++) {
+            for (int j = 0; j < level_w; j++) {
+
+                char textureLetter = floor_map[i][j];
+
+                DrawCubeTexture(
+                    textures2D[textureLetter],
+                    { j + offset_x, 0.0f, i + offset_z },
+                    1.0f, 1.0f, 1.0f, WHITE
+                );
+            }
+        }
+
+        for (int i = 0; i < level_h; i++) {
+            for (int j = 0; j < level_w; j++) {
+
+                char textureLetter = map_map[i][j];
+
+                if (textureLetter != '0') {
+                    DrawCubeTexture(
+                        textures2D[textureLetter],
+                        { j + offset_x, 1.0f, i + offset_z },
+                        1.0f, 1.0f, 1.0f, WHITE
+                    );
+                }
+            }
+        }
 
         DrawGrid(10, 1.0f);        // Draw a grid
 
@@ -242,8 +286,6 @@ int main()
 
         cout << endl;
     }
-
-
 
     getline(level, tmp, ';');
 
