@@ -1,7 +1,0 @@
-<Solution>
-  <Configurations>
-    <Platform Name="x64" />
-    <Platform Name="x86" />
-  </Configurations>
-  <Project Path="BombOS Reader/BombOS Reader.vcxproj" Id="89bb4471-85c5-4ef5-a3aa-e272b2f9db27" />
-</Solution>

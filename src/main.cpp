@@ -15,6 +15,7 @@ by Jeffery Myers is marked with CC0 1.0. To view a copy of this license, visit h
 #include <iostream>
 #include <fstream>
 #include <string>
+#include <vector>
 #include <map>
 
 
@@ -41,6 +42,52 @@ void DrawCubeTexture(Texture2D texture, Vector3 position, float width, float hei
 void DrawCubeTextureRec(Texture2D texture, Rectangle source, Vector3 position, float width, float height, float length, Color color); // Draw cube with a region of a texture
 
 Vector3 currentPosition = { 0, 0, 0 };
+
+// BOMBA
+
+class Bomb {
+public:
+    int posX = -1;
+    int posZ = -1;
+    float timer = 3;
+    int range = 2;
+    bool isActive = false;
+};
+
+vector<Bomb>bombs;
+
+void placeBomb() {
+
+    // Obtenemos la posición del jugador en la cuadrícula
+    int bombX = (int)roundf(currentPosition.x - offset_x);
+    int bombZ = (int)roundf(currentPosition.z - offset_z);
+
+    // Comprobamos si ya hay una bomba en esa posición
+    for (int i = 0; i < bombs.size(); i++) {
+
+        if (bombs[i].isActive &&
+            bombs[i].posX == bombX &&
+            bombs[i].posZ == bombZ) {
+
+            return;
+        }
+    }
+
+    // Creamos una bomba nueva
+    Bomb newBomb;
+
+    newBomb.posX = bombX;
+    newBomb.posZ = bombZ;
+    newBomb.timer = 3.0f;
+    newBomb.range = 2;
+    newBomb.isActive = true;
+
+    // Añadimos la bomba al vector
+    bombs.push_back(newBomb);
+
+}
+
+// FIN BOMBA
 
 bool tryMove(float dx, float dz) {
 
@@ -168,6 +215,7 @@ int start_raylib(void)
         if (IsKeyPressed(KEY_A)) { next_x = -1; }
         if (IsKeyPressed(KEY_S)) { next_z = 1;  }
         if (IsKeyPressed(KEY_D)) { next_x = 1; }
+        if (IsKeyPressed(KEY_SPACE)) { placeBomb(); }
 
         //if (!pause) UpdateCamera(&camera, CAMERA_ORBITAL);
         //----------------------------------------------------------------------------------
@@ -238,7 +286,25 @@ int start_raylib(void)
 
         tryMove(next_x, next_z);
 
+        // Dibujar Player
         DrawSphere(currentPosition, 0.4f, RED);
+
+        // Dibujar bombas
+        for (int i = 0; i < bombs.size(); i++) {
+
+            if (bombs[i].isActive) {
+
+                DrawSphere(
+                    {
+                        bombs[i].posX + offset_x,
+                        0.75f,
+                        bombs[i].posZ + offset_z
+                    },
+                    0.25f,
+                    BLACK
+                );
+            }
+        }
 
 
         DrawGrid(10, 1.0f);        // Draw a grid
