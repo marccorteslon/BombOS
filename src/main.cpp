@@ -85,12 +85,34 @@ int start_raylib(void)
         offset_z += 0.5;
     }
 
+    int playerX = -1;
+    int playerY = -1;
+
+    for (int i = 0; i < level_h; i++) {
+        for (int j = 0; j < level_w; j++) {
+
+            if (objects_map[i][j] == '1') {
+                playerX = i;
+                playerY = j;
+                break;
+            }
+        }
+
+        if (playerX != -1) {
+            break;
+        }
+    }
+
     // Main game loop
     while (!WindowShouldClose())        // Detect window close button or ESC key
     {
         // Update
         //----------------------------------------------------------------------------------
-        if (IsKeyPressed(KEY_P)) pause = !pause;
+        if (IsKeyPressed(KEY_P)) { pause = !pause; }
+        else if (IsKeyPressed(KEY_W)) { playerY--; }
+        else if (IsKeyPressed(KEY_A)) { playerX--; }
+        else if (IsKeyPressed(KEY_S)) { playerY++; }
+        else if (IsKeyPressed(KEY_D)) { playerX++; }
 
         //if (!pause) UpdateCamera(&camera, CAMERA_ORBITAL);
         //----------------------------------------------------------------------------------
@@ -103,6 +125,18 @@ int start_raylib(void)
 
         
         BeginMode3D(camera);
+
+        if (playerX != -1 && playerY != -1) {
+            DrawSphere(
+                {
+                    playerY + offset_x,
+                    0.85f,
+                    playerX + offset_z
+                },
+                0.35f,
+                RED
+            );
+        }
 
         // Draw cube with an applied texture
         // DrawCubeTexture(textures2D['a'], { 0.0f, 0.0f, 0.0f }, 1.0f, 1.0f, 1.0f, WHITE);
