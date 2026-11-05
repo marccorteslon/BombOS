@@ -20,6 +20,8 @@ by Jeffery Myers is marked with CC0 1.0. To view a copy of this license, visit h
 
 using namespace std;
 
+float offset_x = 0;
+float offset_z = 0;
 
 string header;
 string version;
@@ -37,6 +39,37 @@ char** objects_map;
 
 void DrawCubeTexture(Texture2D texture, Vector3 position, float width, float height, float length, Color color); // Draw cube textured
 void DrawCubeTextureRec(Texture2D texture, Rectangle source, Vector3 position, float width, float height, float length, Color color); // Draw cube with a region of a texture
+
+Vector3 currentPosition = { 0, 0, 0 };
+
+bool tryMove(float dx, float dz) {
+
+    // Si no hay movimiento, no hacemos nada
+    if (dx == 0 && dz == 0) {
+        return false;
+    }
+
+    // Calculamos la nueva posición
+    int nextX = (int)roundf(currentPosition.x + dx - offset_x);
+    int nextZ = (int)roundf(currentPosition.z + dz - offset_z);
+
+    // Comprobamos que esté dentro del mapa
+    if (nextX < 0 || nextX >= level_w ||
+        nextZ < 0 || nextZ >= level_h) {
+        return false;
+    }
+
+    // Comprobamos si la casilla tiene colisión
+    if (collisions_map[nextZ][nextX] == '1') {
+        return false;
+    }
+
+    // Actualizamos la posición
+    currentPosition.x += dx;
+    currentPosition.z += dz;
+
+    return true;
+}
 
 int start_raylib(void)
 {
@@ -73,7 +106,7 @@ int start_raylib(void)
     SetTargetFPS(60);                   // Set our game to run at 60 frames-per-second
     //--------------------------------------------------------------------------------------
 
-    float offset_x = -level_w / 2;
+    /*float offset_x = -level_w / 2;
 
     if (level_w % 2 == 0) {
         offset_x += 0.5;
@@ -83,6 +116,18 @@ int start_raylib(void)
 
     if (level_h % 2 == 0) {
         offset_z += 0.5;
+    }*/
+
+    offset_x = -(float)level_w / 2.0f;
+
+    if (level_w % 2 == 0) {
+        offset_x += 0.5f;
+    }
+
+    offset_z = -(float)level_h / 2.0f;
+
+    if (level_h % 2 == 0) {
+        offset_z += 0.5f;
     }
 
     int playerX = -1;
@@ -103,16 +148,26 @@ int start_raylib(void)
         }
     }
 
+    if (playerX != -1 && playerY != -1) {
+        currentPosition.x = playerY + offset_x;
+        currentPosition.y = 0.85f;
+        currentPosition.z = playerX + offset_z;
+    }
+
     // Main game loop
     while (!WindowShouldClose())        // Detect window close button or ESC key
     {
         // Update
         //----------------------------------------------------------------------------------
         if (IsKeyPressed(KEY_P)) { pause = !pause; }
-        else if (IsKeyPressed(KEY_W)) { playerY--; }
-        else if (IsKeyPressed(KEY_A)) { playerX--; }
-        else if (IsKeyPressed(KEY_S)) { playerY++; }
-        else if (IsKeyPressed(KEY_D)) { playerX++; }
+
+        int next_x = 0;
+        int next_z = 0;
+
+        if (IsKeyPressed(KEY_W)) { next_z = -1;  }
+        if (IsKeyPressed(KEY_A)) { next_x = -1; }
+        if (IsKeyPressed(KEY_S)) { next_z = 1;  }
+        if (IsKeyPressed(KEY_D)) { next_x = 1; }
 
         //if (!pause) UpdateCamera(&camera, CAMERA_ORBITAL);
         //----------------------------------------------------------------------------------
@@ -122,11 +177,10 @@ int start_raylib(void)
         BeginDrawing();
 
         ClearBackground(RAYWHITE);
-
         
         BeginMode3D(camera);
 
-        if (playerX != -1 && playerY != -1) {
+        /*if (playerX != -1 && playerY != -1) {
             DrawSphere(
                 {
                     playerY + offset_x,
@@ -136,7 +190,7 @@ int start_raylib(void)
                 0.35f,
                 RED
             );
-        }
+        }*/
 
         // Draw cube with an applied texture
         // DrawCubeTexture(textures2D['a'], { 0.0f, 0.0f, 0.0f }, 1.0f, 1.0f, 1.0f, WHITE);
@@ -170,6 +224,22 @@ int start_raylib(void)
                 }
             }
         }
+
+        //bool tryMove(float dx, float dz);
+
+        /*if (tryMove(next_x, next_z)) {
+
+            int row = (int)roundf(currentPosition.x + next_x - offset_x);
+            int col = (int)roundf(currentPosition.x + next_x - offset_x);
+
+            currentPosition.x = next_x;
+            currentPosition.y = next_z;
+        }*/
+
+        tryMove(next_x, next_z);
+
+        DrawSphere(currentPosition, 0.4f, RED);
+
 
         DrawGrid(10, 1.0f);        // Draw a grid
 
@@ -598,3 +668,4 @@ void DrawCubeTextureRec(Texture2D texture, Rectangle source, Vector3 position, f
 
     rlSetTexture(0);
 }
+
