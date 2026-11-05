@@ -107,7 +107,7 @@ bool tryMove(float dx, float dz) {
     }
 
     // Comprobamos si la casilla tiene colisión
-    if (collisions_map[nextZ][nextX] == '1') {
+    if (collisions_map[nextZ][nextX] != '0') {
         return false;
     }
 
