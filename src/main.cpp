@@ -27,6 +27,7 @@ float offset_z = 0;
 string header;
 string version;
 string title;
+string music;
 int textures_num = 0;
 map<char, string> textures_files;
 map<char, Texture2D> textures2D;
@@ -127,6 +128,22 @@ int start_raylib(void)
 
     InitWindow(screenWidth, screenHeight, "raylib [models] example - cubicmap rendering");
 
+    Music musicStream = { 0 }; // Cargar la musica
+    bool music_loaded = false;
+
+    if (!music.empty()) {
+
+        InitAudioDevice();
+
+        string music_path = "resources/" + music;
+
+        musicStream = LoadMusicStream(music_path.c_str());
+
+        PlayMusicStream(musicStream);
+
+        music_loaded = true;
+    }
+
     // Define the camera to look into our 3d world
     Camera camera = { 0 };
     camera.position = { 0.0f, 12.0f, 0.0f };     // Camera position
@@ -206,6 +223,11 @@ int start_raylib(void)
     {
         // Update
         //----------------------------------------------------------------------------------
+        
+        if (music_loaded) {
+            UpdateMusicStream(musicStream);
+        }
+
         if (IsKeyPressed(KEY_P)) { pause = !pause; }
 
         int next_x = 0;
@@ -323,6 +345,14 @@ int start_raylib(void)
     // De-Initialization
     //--------------------------------------------------------------------------------------
 
+    if (music_loaded) {
+        StopMusicStream(musicStream);
+        UnloadMusicStream(musicStream);
+    }
+
+    if (IsAudioDeviceReady()) {
+        CloseAudioDevice();
+    }
 
     CloseWindow();              // Close window and OpenGL context
     //--------------------------------------------------------------------------------------
@@ -344,7 +374,7 @@ int main()
 
     getline(level, header, ';');
 
-    if (header != "BOS") {
+    if (header != "BOS") { // Formato
         cout << "Error 2: Formato incorrecto.";
         level.close();
         return 2;
@@ -360,7 +390,7 @@ int main()
 
     getline(level, tmp, ';');
 
-    if (tmp != "TITLE") {
+    if (tmp != "TITLE") { // Titulo
         cout << "Error 3: Formato de título incorrecto.";
         level.close();
         return 3;
@@ -370,10 +400,26 @@ int main()
 
     getline(level, tmp);
 
-
     getline(level, tmp, ';');
 
-    if (tmp != "TEXTURES") {
+    if (version == "0.6") { // Version
+
+        getline(level, tmp, ';');
+
+        if (tmp != "MUSIC") { // Musica
+            cout << "Error 10: Formato de música incorrecto.";
+            level.close();
+            return 10;
+        }
+
+        getline(level, music, ';');
+
+        getline(level, tmp);
+
+        cout << "Musica: " << music << endl;
+    }
+
+    if (tmp != "TEXTURES") { // Texturas
         cout << "Error 4: Formato de texturas incorrecto.";
         level.close();
         return 4;

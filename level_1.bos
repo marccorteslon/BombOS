@@ -1,5 +1,6 @@
-BOS;0.5;;
+BOS;0.6;;
 TITLE;Nivel 1;;
+MUSIC;backgroundMusic.mp3;;
 TEXTURES;5;
 a;verde_oscuro.png;;
 b;verde_claro.png;;
