@@ -400,8 +400,6 @@ int main()
 
     getline(level, tmp);
 
-    getline(level, tmp, ';');
-
     if (version == "0.6") { // Version
 
         getline(level, tmp, ';');
@@ -418,6 +416,8 @@ int main()
 
         cout << "Musica: " << music << endl;
     }
+
+    getline(level, tmp, ';');
 
     if (tmp != "TEXTURES") { // Texturas
         cout << "Error 4: Formato de texturas incorrecto.";
