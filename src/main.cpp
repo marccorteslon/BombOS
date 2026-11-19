@@ -52,40 +52,84 @@ public:
     int posZ = -1;
     float timer = 3;
     int range = 2;
-    bool isActive = false;
 };
 
 vector<Bomb>bombs;
 
-void placeBomb() {
+void placeBomb() { // Añadir bomba
 
-    // Obtenemos la posición del jugador en la cuadrícula
     int bombX = (int)roundf(currentPosition.x - offset_x);
     int bombZ = (int)roundf(currentPosition.z - offset_z);
 
-    // Comprobamos si ya hay una bomba en esa posición
     for (int i = 0; i < bombs.size(); i++) {
 
-        if (bombs[i].isActive &&
-            bombs[i].posX == bombX &&
-            bombs[i].posZ == bombZ) {
-
+        if (bombs[i].posX == bombX && bombs[i].posZ == bombZ) {
             return;
         }
     }
 
-    // Creamos una bomba nueva
     Bomb newBomb;
 
     newBomb.posX = bombX;
     newBomb.posZ = bombZ;
-    newBomb.timer = 3.0f;
-    newBomb.range = 2;
-    newBomb.isActive = true;
 
-    // Añadimos la bomba al vector
     bombs.push_back(newBomb);
 
+}
+
+void explodeBomb(Bomb& bomb) { // Explotar bomba
+
+    int directions[4][2] = {
+        { 0, -1 },
+        { 0, 1 },
+        { -1, 0 },
+        { 1, 0 }
+    };
+
+    for (int dir = 0; dir < 4; dir++) {
+
+        for (int step = 1; step <= bomb.range; step++) {
+
+            int x = bomb.posX + directions[dir][0] * step;
+            int z = bomb.posZ + directions[dir][1] * step;
+
+            if (x < 0 || x >= level_w || z < 0 || z >= level_h) {
+                break;
+            }
+
+            char collision = collisions_map[z][x];
+
+            if (collision == '1') {
+                break;
+            }
+
+            if (collision == 'D') {
+                map_map[z][x] = '0';
+                collisions_map[z][x] = '0';
+                break;
+            }
+
+            if (collision != '0') {
+                break;
+            }
+        }
+    }
+}
+
+void updateBombs(float deltaTime) { // Timer de las bombas
+
+    for (int i = 0; i < bombs.size(); i++) {
+
+        bombs[i].timer -= deltaTime;
+
+        if (bombs[i].timer <= 0.0f) {
+            explodeBomb(bombs[i]);
+            bombs.erase(bombs.begin() + i);
+        }
+        else {
+            i++;
+        }
+    }
 }
 
 // FIN BOMBA
@@ -239,6 +283,8 @@ int start_raylib(void)
         if (IsKeyPressed(KEY_D)) { next_x = 1; }
         if (IsKeyPressed(KEY_SPACE)) { placeBomb(); }
 
+        updateBombs(GetFrameTime());
+
         //if (!pause) UpdateCamera(&camera, CAMERA_ORBITAL);
         //----------------------------------------------------------------------------------
 
@@ -314,20 +360,16 @@ int start_raylib(void)
         // Dibujar bombas
         for (int i = 0; i < bombs.size(); i++) {
 
-            if (bombs[i].isActive) {
-
-                DrawSphere(
-                    {
-                        bombs[i].posX + offset_x,
-                        0.75f,
-                        bombs[i].posZ + offset_z
-                    },
-                    0.25f,
-                    BLACK
-                );
-            }
+            DrawSphere(
+                {
+                    bombs[i].posX + offset_x,
+                    0.75f,
+                    bombs[i].posZ + offset_z
+                },
+                0.25f,
+                BLACK
+            );
         }
-
 
         DrawGrid(10, 1.0f);        // Draw a grid
 
