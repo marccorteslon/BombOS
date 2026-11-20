@@ -405,7 +405,7 @@ int start_raylib(void)
 
 int main()
 {
-    ifstream level("level_1.bos");
+    ifstream level("level_2.bos");
 
     if (!level.is_open()) {
         cout << "Error 1: No se pudo abrir el archivo" << endl;
